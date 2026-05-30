@@ -1,0 +1,6 @@
+{
+  "name": "ReadySet",
+  "description": "Track home emergency preparation kits, expiration dates, item packing status, and receive email alert notifications for checked-out or expired supplies.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

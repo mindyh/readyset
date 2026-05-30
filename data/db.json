@@ -1,0 +1,191 @@
+{
+  "kits": [
+    {
+      "id": "car-kit",
+      "name": "Car Emergency Kit",
+      "description": "Kept in the vehicle trunk for roadside issues, severe weather, or unexpected roadside stranding.",
+      "category": "vehicle",
+      "createdAt": "2026-05-10T10:00:00Z",
+      "updatedAt": "2026-05-30T10:00:00Z",
+      "lastAuditedAt": "2026-05-15",
+      "items": [
+        {
+          "id": "car-pants",
+          "name": "Spare Pair of Warm Pants",
+          "status": "removed",
+          "note": "Took out to wash/wear. Easy to track on-the-go!",
+          "quantity": "1 pair",
+          "lastChecked": "2026-05-24",
+          "alertOnExpiration": false,
+          "removedAt": "2026-05-30",
+          "reminderDueDate": "2026-06-06"
+        },
+        {
+          "id": "car-water",
+          "name": "Bottled Cases of Water",
+          "status": "packed",
+          "note": "Stored inside heavy insulated container in the trunk.",
+          "quantity": "12 bottles",
+          "lastChecked": "2026-05-15",
+          "expirationDate": "2026-08-30",
+          "alertOnExpiration": true
+        },
+        {
+          "id": "car-blanket",
+          "name": "Thermal Wool blankets",
+          "status": "packed",
+          "note": "Heavy duty, moth-proof packed.",
+          "quantity": "2 blankets",
+          "lastChecked": "2026-05-15",
+          "alertOnExpiration": false
+        },
+        {
+          "id": "car-flashlight",
+          "name": "Tactical flashlight & extra AA",
+          "status": "to-pack",
+          "note": "Have it in kitchen cabinet, need to load batteries and put in vehicle glovebox.",
+          "quantity": "1 flashlight",
+          "lastChecked": "2026-05-30",
+          "alertOnExpiration": false
+        }
+      ]
+    },
+    {
+      "id": "evac-kit",
+      "name": "3-Day Refugee / Bug-Out Bag",
+      "description": "Rapid evacuation grab-and-go kit. One backpack per family member.",
+      "category": "evacuation",
+      "createdAt": "2026-05-12T11:00:00Z",
+      "updatedAt": "2026-05-30T12:00:00Z",
+      "lastAuditedAt": "2026-05-10",
+      "items": [
+        {
+          "id": "evac-food",
+          "name": "High-Calorie Protein Bars",
+          "status": "expired",
+          "note": "Peanuts, oats, chocolate. Expired early this month!",
+          "quantity": "24 bars",
+          "lastChecked": "2026-05-10",
+          "expirationDate": "2026-05-10",
+          "alertOnExpiration": true
+        },
+        {
+          "id": "evac-ids",
+          "name": "Printed Copies of Driver Licenses & Birth Certificates",
+          "status": "to-buy",
+          "note": "Laminate and place in waterproof document pouch",
+          "quantity": "1 set per person",
+          "lastChecked": "2026-05-30",
+          "alertOnExpiration": false
+        },
+        {
+          "id": "evac-radio",
+          "name": "Solar Emergency NOAA Hand-Crank Radio",
+          "status": "packed",
+          "note": "Fully charged, stored in front compartment.",
+          "quantity": "1 unit",
+          "lastChecked": "2026-05-10",
+          "alertOnExpiration": false
+        },
+        {
+          "id": "evac-firstaid",
+          "name": "Trauma First Aid Kit & Prescriptions",
+          "status": "packed",
+          "note": "Review contents yearly. Stored in red zipper bag.",
+          "quantity": "1 complete set",
+          "lastChecked": "2026-05-20",
+          "expirationDate": "2027-12-31",
+          "alertOnExpiration": true
+        }
+      ]
+    },
+    {
+      "id": "fire-kit",
+      "name": "Kitchen Fire Suppression Kit",
+      "description": "Under-sink primary defense for grease and electric stove fires.",
+      "category": "fire",
+      "createdAt": "2026-05-15T09:00:00Z",
+      "updatedAt": "2026-05-15T09:10:00Z",
+      "lastAuditedAt": "2026-01-15",
+      "items": [
+        {
+          "id": "fire-extinguisher",
+          "name": "Kitchen ABC Dry Chem Extinguisher",
+          "status": "packed",
+          "note": "Verify pointer is in green zone weekly.",
+          "quantity": "1 canister",
+          "lastChecked": "2026-05-20",
+          "expirationDate": "2031-12-31",
+          "alertOnExpiration": true
+        },
+        {
+          "id": "fire-blanket",
+          "name": "Fiberglass Fire Blanket",
+          "status": "packed",
+          "note": "Mounted inside the pantry door - quick pull-tab design.",
+          "quantity": "2 blankets",
+          "lastChecked": "2026-01-15",
+          "alertOnExpiration": false
+        }
+      ]
+    },
+    {
+      "id": "shelter-kit",
+      "name": "3-Month Shelter-in-Place Pantry",
+      "description": "Long-term home reserves in dry pantry and basement.",
+      "category": "shelter-in-place",
+      "createdAt": "2026-05-20T08:00:00Z",
+      "updatedAt": "2026-05-25T14:30:00Z",
+      "lastAuditedAt": "2026-04-01",
+      "items": [
+        {
+          "id": "shelter-rice",
+          "name": "Bulk White Rice in Mylar Bags",
+          "status": "packed",
+          "note": "Sealed in food-grade buckets with oxygen absorbers. 30 year life.",
+          "quantity": "150 lbs",
+          "lastChecked": "2026-04-01",
+          "expirationDate": "2056-04-01",
+          "alertOnExpiration": true
+        },
+        {
+          "id": "shelter-beans",
+          "name": "Bulk Pinto & Black Beans",
+          "status": "packed",
+          "note": "Likewise sealed for 30 year longevity.",
+          "quantity": "100 lbs",
+          "lastChecked": "2026-04-01",
+          "expirationDate": "2056-04-01",
+          "alertOnExpiration": true
+        },
+        {
+          "id": "shelter- stove-fuel",
+          "name": "Butane Stove canisters",
+          "status": "to-buy",
+          "note": "Need 4 more packs of butane can sets for outdoor emergency burner.",
+          "quantity": "12 cans",
+          "lastChecked": "2026-05-30",
+          "alertOnExpiration": false
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "recipientEmails": "xxxxx@gmail.com",
+    "reminderDays": 7,
+    "hubSubtitle": "subtitle",
+    "smtp": {
+      "enabled": true,
+      "host": "smtp.gmail.com",
+      "port": 465,
+      "secure": true,
+      "user": "xxxxx@gmail.com",
+      "pass": "xxxxx",
+      "from": "ReadySet"
+    }
+  },
+  "emailLogs": [
+    {}
+  ],
+  "lastAutoCheckDate": "2026-05-29"
+}
