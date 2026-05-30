@@ -20,8 +20,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install dumb-init to handle signals properly
-RUN apk add --no-cache dumb-init
+# Install dumb-init and CA certificates for SMTP/TLS
+RUN apk add --no-cache dumb-init ca-certificates
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
@@ -33,6 +33,10 @@ RUN npm ci --only=production
 
 # Create data directory
 RUN mkdir -p /app/data
+
+# Set production environment
+ENV NODE_ENV=production
+ENV DISABLE_HMR=true
 
 # Expose port
 EXPOSE 3000

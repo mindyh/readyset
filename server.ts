@@ -480,6 +480,9 @@ app.post("/api/send-test-email", async (req, res) => {
         user: smtp.user,
         pass: smtp.pass,
       },
+      tls: {
+        rejectUnauthorized: false,
+      },
     });
 
     await transporter.sendMail({
@@ -754,6 +757,9 @@ async function performAlertCheck(force: boolean = false) {
         auth: {
           user: db.settings.smtp.user,
           pass: db.settings.smtp.pass,
+        },
+        tls: {
+          rejectUnauthorized: false,
         },
       });
 
