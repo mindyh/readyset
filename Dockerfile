@@ -20,8 +20,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install dumb-init and CA certificates for SMTP/TLS
-RUN apk add --no-cache dumb-init ca-certificates
+# Install dumb-init, curl (for healthcheck), and CA certificates for SMTP/TLS
+RUN apk add --no-cache dumb-init curl ca-certificates
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist

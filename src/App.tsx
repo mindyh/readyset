@@ -3,16 +3,16 @@ import { Kit, KitItem, AppSettings, EmailLog, KitCategory } from "./types";
 import MetricCard from "./components/MetricCard";
 import KitCard from "./components/KitCard";
 import SettingsModal from "./components/SettingsModal";
-import { 
-  Plus, 
-  Settings, 
-  Mail, 
-  RefreshCw, 
-  Loader2, 
-  SlidersHorizontal, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Clock, 
+import {
+  Plus,
+  Settings,
+  Mail,
+  RefreshCw,
+  Loader2,
+  SlidersHorizontal,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
   FolderHeart,
   X,
   FileCheck,
@@ -84,7 +84,7 @@ export default function App() {
     try {
       const nextSettings = updatedSettings || settings;
       const nextLogs = updatedLogs || emailLogs;
-      
+
       if (!nextSettings) return;
 
       const payload = {
@@ -126,11 +126,11 @@ export default function App() {
         })
       });
       const resJson = await response.json();
-      
+
       if (resJson.success && resJson.kit) {
         const nextKits = [...kits, resJson.kit];
         setKits(nextKits);
-        
+
         // Reset state
         setNewKitName("");
         setNewKitDesc("");
@@ -181,7 +181,7 @@ export default function App() {
       setAlertResponse(null);
       const res = await fetch("/api/send-alerts", { method: "POST" });
       const data = await res.json();
-      
+
       setAlertResponse(data);
       // Reload logged history record lists
       await loadAppData();
@@ -199,7 +199,7 @@ export default function App() {
     if (!item.expirationDate) return false;
     const expDate = new Date(item.expirationDate);
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     return expDate < today;
   };
 
@@ -207,7 +207,7 @@ export default function App() {
     if (!item.expirationDate) return false;
     const expDate = new Date(item.expirationDate);
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     if (expDate < today) return false;
     const diffTime = expDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -236,8 +236,8 @@ export default function App() {
     // Search query filter matching
     if (itemSearchQuery.trim() !== "") {
       const query = itemSearchQuery.toLowerCase();
-      const matched = kit.items.filter(item => 
-        item.name.toLowerCase().includes(query) || 
+      const matched = kit.items.filter(item =>
+        item.name.toLowerCase().includes(query) ||
         (item.note && item.note.toLowerCase().includes(query))
       );
       matchedCount = matched.length;
@@ -247,14 +247,15 @@ export default function App() {
     if (needsAttentionOnly) {
       const query = itemSearchQuery.toLowerCase();
       const matched = kit.items.filter(item => {
-        const matchesSearch = itemSearchQuery.trim() === "" || 
-          item.name.toLowerCase().includes(query) || 
+        const matchesSearch = itemSearchQuery.trim() === "" ||
+          item.name.toLowerCase().includes(query) ||
           (item.note && item.note.toLowerCase().includes(query));
 
-        const matchesAttention = isExpired(item) || 
-          isExpiringSoon(item) || 
-          item.status === 'removed' || 
-          item.status === 'to-buy';
+        const matchesAttention = isExpired(item) ||
+          isExpiringSoon(item) ||
+          item.status === 'removed' ||
+          item.status === 'to-buy' ||
+          item.status === 'to-pack';
 
         return matchesSearch && matchesAttention;
       });
@@ -271,7 +272,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50/70 text-gray-800 pb-16 antialiased">
-      
+
       {/* 1. APP TOP BANNER HERO */}
       <header className="sticky top-0 z-40 w-full bg-white/85 backdrop-blur-md border-b border-gray-150">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-0 sm:h-16 flex items-center justify-between gap-3">
@@ -499,11 +500,10 @@ export default function App() {
                     <button
                       id="btn-filter-needs-attention"
                       onClick={() => setNeedsAttentionOnly(!needsAttentionOnly)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                        needsAttentionOnly 
-                          ? "bg-rose-50 text-rose-700 border border-rose-200" 
-                          : "bg-slate-50 border border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-100"
-                      }`}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${needsAttentionOnly
+                        ? "bg-rose-50 text-rose-700 border border-rose-200"
+                        : "bg-slate-50 border border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+                        }`}
                     >
                       {needsAttentionOnly ? <CheckCircle2 className="h-4 w-4 text-rose-600" /> : null}
                       Needs Attention
@@ -547,8 +547,8 @@ export default function App() {
                 <p className="mt-1 text-xs text-gray-400 max-w-sm mx-auto">
                   {itemSearchQuery.trim() !== ""
                     ? `No supplies matched your search for "${itemSearchQuery}". Try a different term or clear filters.`
-                    : needsAttentionOnly 
-                      ? "Excellent! No supplies currently require checkups, purchasing, or expiration replacements." 
+                    : needsAttentionOnly
+                      ? "Excellent! No supplies currently require checkups, purchasing, or expiration replacements."
                       : "Create an emergency kit (e.g. Car Kit, Bug Out Bag) to begin mapping survival gear."}
                 </p>
                 {!needsAttentionOnly && (

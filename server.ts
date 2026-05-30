@@ -747,8 +747,8 @@ async function performAlertCheck(force: boolean = false) {
   let alertStatus: 'sent' | 'failed' | 'simulated' = 'simulated';
   let emailErrorMsg: string | undefined = undefined;
 
-  // Let's attempt real SMTP if enabled
-  if (db.settings.smtp.enabled && db.settings.smtp.host && db.settings.smtp.user) {
+  // Let's attempt real SMTP if enabled and fully configured
+  if (db.settings.smtp.enabled && db.settings.smtp.host && db.settings.smtp.user && db.settings.smtp.pass) {
     try {
       const transporter = nodemailer.createTransport({
         host: db.settings.smtp.host,

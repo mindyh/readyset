@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { Kit, KitItem, KitCategory, ItemStatus } from "../types";
 import ItemRow from "./ItemRow";
-import { 
-  Car, 
-  Backpack, 
-  Flame, 
-  Home, 
-  HeartPulse, 
-  Compass, 
-  ChevronDown, 
-  ChevronUp, 
-  Plus, 
-  Trash2, 
-  CheckSquare, 
-  Clock, 
+import {
+  Car,
+  Backpack,
+  Flame,
+  Home,
+  HeartPulse,
+  Compass,
+  ChevronDown,
+  ChevronUp,
+  Plus,
+  Trash2,
+  CheckSquare,
+  Clock,
   Calendar,
   PenSquare,
   AlertTriangle,
@@ -88,12 +88,12 @@ export default function KitCard({
 
   // Stats Counters
   const totalItems = kit.items.length;
-  
+
   const isExpired = (item: KitItem) => {
     if (!item.expirationDate) return false;
     const expDate = new Date(item.expirationDate);
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     return expDate < today;
   };
 
@@ -101,7 +101,7 @@ export default function KitCard({
     if (!item.expirationDate) return false;
     const expDate = new Date(item.expirationDate);
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     if (expDate < today) return false;
     const diffTime = expDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -116,16 +116,17 @@ export default function KitCard({
   const displayedItems = kit.items.filter(item => {
     if (searchQuery.trim() !== "") {
       const q = searchQuery.toLowerCase();
-      const matchesSearch = item.name.toLowerCase().includes(q) || 
-                            (item.note && item.note.toLowerCase().includes(q));
+      const matchesSearch = item.name.toLowerCase().includes(q) ||
+        (item.note && item.note.toLowerCase().includes(q));
       if (!matchesSearch) return false;
     }
     if (needsAttentionOnly) {
-      const matchesAttention = isExpired(item) || 
-                               item.status === 'expired' ||
-                               isExpiringSoon(item) || 
-                               item.status === 'removed' || 
-                               item.status === 'to-buy';
+      const matchesAttention = isExpired(item) ||
+        item.status === 'expired' ||
+        isExpiringSoon(item) ||
+        item.status === 'removed' ||
+        item.status === 'to-buy' ||
+        item.status === 'to-pack';
       if (!matchesAttention) return false;
     }
     return true;
@@ -139,7 +140,7 @@ export default function KitCard({
     const addedItem: KitItem = {
       id: "item_" + Math.random().toString(36).substr(2, 9),
       name: newItemName.trim(),
-      quantity: newItemQty.trim() ||"1",
+      quantity: newItemQty.trim() || "1",
       status: "to-pack", // defaults to "need to pack" which is highly logical
       expirationDate: newItemExpiry || null,
       alertOnExpiration: newItemAlert,
@@ -166,7 +167,7 @@ export default function KitCard({
     if (updatedItem.expirationDate) {
       const exp = new Date(updatedItem.expirationDate);
       const now = new Date();
-      now.setHours(0,0,0,0);
+      now.setHours(0, 0, 0, 0);
       if (exp < now) {
         finalStatus = "expired";
       } else if (updatedItem.status === "expired") {
@@ -174,7 +175,7 @@ export default function KitCard({
       }
     }
 
-    const nextItems = kit.items.map(item => 
+    const nextItems = kit.items.map(item =>
       item.id === updatedItem.id ? { ...updatedItem, status: finalStatus } : item
     );
 
@@ -221,7 +222,7 @@ export default function KitCard({
 
   return (
     <div id={`kit-card-${kit.id}`} className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-      
+
       {/* Kit Header Block */}
       <div className="flex items-center justify-between p-5 md:p-6 select-none cursor-pointer hover:bg-slate-50/50" onClick={() => setExpanded(!expanded)}>
         <div className="flex items-start gap-4">
@@ -237,7 +238,7 @@ export default function KitCard({
               <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
                 {kit.category.replace("-", " ")}
               </span>
-              
+
               {/* Emergency Attention indicators */}
               {expiredCount > 0 && (
                 <span className="flex items-center gap-1 font-bold text-[9px] uppercase tracking-wider bg-rose-50 border border-rose-100 text-rose-600 px-2 py-0.5 rounded-md animate-pulse">
@@ -245,7 +246,7 @@ export default function KitCard({
                 </span>
               )}
             </div>
-            
+
             <p className="mt-1 text-xs text-gray-500 max-w-sm md:max-w-md font-medium line-clamp-1">
               {kit.description || "No description provided."}
             </p>
@@ -287,14 +288,14 @@ export default function KitCard({
       {/* Accordion Body contents */}
       {expanded && (
         <div className="border-t border-gray-100 bg-gray-50/20 p-5 md:p-6 transition-all">
-          
+
           {/* Metadata editor section or action row */}
           {isEditingMeta ? (
             <div className="mb-5 p-4 border border-gray-200 rounded-2xl bg-white space-y-3.5">
               <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
                 Edit Kit Details
               </h4>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-500 mb-1">Kit Title</label>
@@ -369,7 +370,7 @@ export default function KitCard({
             </div>
           ) : (
             <div className="mb-5 flex flex-wrap gap-2 items-center justify-between">
-              
+
               {/* Kit Auditing Call to Action block */}
               <div className="flex items-center gap-2">
                 <button
