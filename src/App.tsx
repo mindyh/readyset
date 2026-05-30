@@ -565,7 +565,7 @@ export default function App() {
                 <KitCard
                   key={kit.id}
                   kit={kit}
-                  defaultExpanded={filteredKits.length === 1 || index === 0}
+                  defaultExpanded={needsAttentionOnly ? true : (filteredKits.length === 1 || index === 0)}
                   onUpdateKit={handleUpdateKit}
                   onDeleteKit={() => handleDeleteKit(kit.id)}
                   searchQuery={itemSearchQuery}
