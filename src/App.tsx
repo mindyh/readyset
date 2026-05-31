@@ -46,6 +46,14 @@ export default function App() {
   const [newKitCat, setNewKitCat] = useState<KitCategory>("vehicle");
   const [newKitDesc, setNewKitDesc] = useState("");
 
+  // Add item to multiple kits state
+  const [showAddMultiKitModal, setShowAddMultiKitModal] = useState(false);
+  const [multiKitItemName, setMultiKitItemName] = useState("");
+  const [multiKitItemQty, setMultiKitItemQty] = useState("1");
+  const [multiKitItemExpiry, setMultiKitItemExpiry] = useState("");
+  const [multiKitItemAlert, setMultiKitItemAlert] = useState(true);
+  const [selectedKitIds, setSelectedKitIds] = useState<Set<string>>(new Set());
+
   // Sub components modal toggling
   const [showSettings, setShowSettings] = useState(false);
 
@@ -161,6 +169,43 @@ export default function App() {
     }
   };
 
+  // 3.5. Add Item to Multiple Kits
+  const handleAddItemToMultipleKits = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!multiKitItemName.trim() || selectedKitIds.size === 0) return;
+
+    const nextKits = kits.map(kit => {
+      if (!selectedKitIds.has(kit.id)) return kit;
+
+      const newItem: KitItem = {
+        id: "item_" + Math.random().toString(36).substr(2, 9),
+        name: multiKitItemName.trim(),
+        quantity: multiKitItemQty.trim() || "1",
+        status: "to-pack",
+        expirationDate: multiKitItemExpiry || null,
+        alertOnExpiration: multiKitItemAlert,
+        lastChecked: new Date().toISOString().split("T")[0]
+      };
+
+      return {
+        ...kit,
+        items: [newItem, ...kit.items],
+        updatedAt: new Date().toISOString()
+      };
+    });
+
+    setKits(nextKits);
+    await syncWithServer(nextKits);
+
+    // Reset form
+    setMultiKitItemName("");
+    setMultiKitItemQty("1");
+    setMultiKitItemExpiry("");
+    setMultiKitItemAlert(true);
+    setSelectedKitIds(new Set());
+    setShowAddMultiKitModal(false);
+  };
+
   // 4. Save SMTP Settings Drawer
   const handleSaveSettings = async (updatedSettings: AppSettings) => {
     setSettings(updatedSettings);
@@ -219,6 +264,7 @@ export default function App() {
   let totalExpired = 0;
   let totalExpiringSoon = 0;
   let totalBorrowReminders = 0;
+  let totalNeedsAction = 0;
 
   kits.forEach(k => {
     k.items.forEach(item => {
@@ -226,6 +272,11 @@ export default function App() {
       else if (isExpiringSoon(item)) totalExpiringSoon++;
 
       if (item.status === 'removed') totalBorrowReminders++;
+
+      // Count items that need action (expired, to-buy, or to-pack)
+      if (isExpired(item) || item.status === 'expired' || item.status === 'to-buy' || item.status === 'to-pack') {
+        totalNeedsAction++;
+      }
     });
   });
 
@@ -396,11 +447,11 @@ export default function App() {
                   />
                   <MetricCard
                     id="stat-expired"
-                    title="Expired Supplies"
-                    value={totalExpired}
+                    title="Action Required"
+                    value={totalNeedsAction}
                     icon={<AlertTriangle className="h-5 w-5 text-rose-600" />}
                     colorClass="bg-rose-50 border border-rose-100"
-                    subText="Require urgent replace"
+                    subText="Expired, to-buy, or to-pack"
                     onClick={() => {
                       setNeedsAttentionOnly(true);
                     }}
@@ -531,6 +582,14 @@ export default function App() {
                       className="bg-gray-900 hover:bg-gray-800 text-white font-extrabold text-xs px-4  py-2 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer ml-auto md:ml-0"
                     >
                       <Plus className="h-4 w-4" /> Add Kit Container
+                    </button>
+
+                    <button
+                      id="btn-launch-add-multi-supply"
+                      onClick={() => setShowAddMultiKitModal(true)}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="h-4 w-4" /> Add Supply to Multiple Kits
                     </button>
                   </div>
                 </section>
@@ -671,6 +730,130 @@ export default function App() {
                   className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold rounded-lg shadow-sm"
                 >
                   Create Prep Kit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 10. DIALOG: ADD SUPPLY TO MULTIPLE KITS */}
+      {showAddMultiKitModal && (
+        <div id="add-multi-supply-modal" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+              <h3 className="font-extrabold text-base tracking-tight text-gray-900">
+                Add Supply to Multiple Kits
+              </h3>
+              <button
+                onClick={() => setShowAddMultiKitModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddItemToMultipleKits} className="space-y-4 pt-4">
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                  Supply Name
+                </label>
+                <input
+                  id="multi-item-name"
+                  type="text"
+                  required
+                  placeholder="e.g. First Aid Kit, Bottled Water, Emergency Rations"
+                  value={multiKitItemName}
+                  onChange={(e) => setMultiKitItemName(e.target.value)}
+                  className="w-full bg-slate-50 border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                    Quantity
+                  </label>
+                  <input
+                    id="multi-item-qty"
+                    type="text"
+                    placeholder="e.g. 3x, 2 pairs"
+                    value={multiKitItemQty}
+                    onChange={(e) => setMultiKitItemQty(e.target.value)}
+                    className="w-full bg-slate-50 border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+                    Expiry Date
+                  </label>
+                  <input
+                    id="multi-item-expiry"
+                    type="date"
+                    value={multiKitItemExpiry}
+                    onChange={(e) => setMultiKitItemExpiry(e.target.value)}
+                    className="w-full bg-slate-50 border border-gray-200 rounded-xl px-3.5 py-2 text-xs focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  id="multi-item-alert"
+                  type="checkbox"
+                  checked={multiKitItemAlert}
+                  onChange={(e) => setMultiKitItemAlert(e.target.checked)}
+                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer"
+                />
+                <span className="text-xs text-gray-500">Enable email alerts if expired</span>
+              </label>
+
+              <div className="border-t border-gray-100 pt-4">
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                  Add to Kits
+                </label>
+                <div className="space-y-2 bg-slate-50 p-3 rounded-xl max-h-48 overflow-y-auto">
+                  {kits.length === 0 ? (
+                    <p className="text-xs text-gray-400 text-center py-4">No kits available</p>
+                  ) : (
+                    kits.map(kit => (
+                      <label key={kit.id} className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded transition">
+                        <input
+                          type="checkbox"
+                          checked={selectedKitIds.has(kit.id)}
+                          onChange={(e) => {
+                            const newSet = new Set(selectedKitIds);
+                            if (e.target.checked) {
+                              newSet.add(kit.id);
+                            } else {
+                              newSet.delete(kit.id);
+                            }
+                            setSelectedKitIds(newSet);
+                          }}
+                          className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer"
+                        />
+                        <span className="text-xs font-medium text-gray-700">{kit.name}</span>
+                      </label>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setShowAddMultiKitModal(false)}
+                  className="px-3 py-1.5 border border-gray-255 text-gray-500 hover:bg-gray-50 text-xs font-semibold rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  id="btn-submit-multi-supply"
+                  type="submit"
+                  disabled={selectedKitIds.size === 0}
+                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white text-xs font-extrabold rounded-lg shadow-sm transition"
+                >
+                  Add Supply
                 </button>
               </div>
             </form>
