@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { KitItem, ItemStatus } from "../types";
-import { 
-  CheckCircle2, 
-  ShoppingCart, 
-  Box, 
-  AlertTriangle, 
-  Clock, 
-  CalendarDays, 
-  Trash2, 
-  FileText, 
-  Check, 
-  Bell, 
-  BellOff 
+import {
+  CheckCircle2,
+  ShoppingCart,
+  Box,
+  AlertTriangle,
+  Clock,
+  CalendarDays,
+  Trash2,
+  FileText,
+  Check,
+  Bell,
+  BellOff
 } from "lucide-react";
 
 interface ItemRowProps {
@@ -25,6 +25,8 @@ export default function ItemRow({ item, onUpdate, onDelete }: ItemRowProps) {
   const [showNotes, setShowNotes] = useState(false);
   const [noteText, setNoteText] = useState(item.note || "");
   const [showReminderSetting, setShowReminderSetting] = useState(false);
+  const [editingQuantity, setEditingQuantity] = useState(false);
+  const [quantityText, setQuantityText] = useState(item.quantity || "1x");
 
   // Status configuration details
   const statusConfigs: Record<ItemStatus, {
@@ -70,7 +72,7 @@ export default function ItemRow({ item, onUpdate, onDelete }: ItemRowProps) {
     if (!item.expirationDate) return false;
     const expDate = new Date(item.expirationDate);
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     return expDate < today;
   };
 
@@ -78,7 +80,7 @@ export default function ItemRow({ item, onUpdate, onDelete }: ItemRowProps) {
     if (!item.expirationDate) return false;
     const expDate = new Date(item.expirationDate);
     const today = new Date();
-    today.setHours(0,0,0,0);
+    today.setHours(0, 0, 0, 0);
     if (expDate < today) return false;
     const diffTime = expDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -89,13 +91,13 @@ export default function ItemRow({ item, onUpdate, onDelete }: ItemRowProps) {
   // or handle manual status triggers
   const handleStatusChange = (newStatus: ItemStatus) => {
     let update: Partial<KitItem> = { status: newStatus };
-    
+
     if (newStatus === "removed") {
       // Set default removal dates
       const today = new Date();
       const nextWeek = new Date();
       nextWeek.setDate(today.getDate() + 7);
-      
+
       update.removedAt = today.toISOString().split("T")[0];
       update.reminderDueDate = nextWeek.toISOString().split("T")[0];
       setShowReminderSetting(true);
@@ -118,6 +120,14 @@ export default function ItemRow({ item, onUpdate, onDelete }: ItemRowProps) {
     setShowNotes(false);
   };
 
+  const handleSaveQuantity = () => {
+    onUpdate({
+      ...item,
+      quantity: quantityText,
+    });
+    setEditingQuantity(false);
+  };
+
   const currentStatus = isDateExpired() ? "expired" : item.status;
   const config = statusConfigs[currentStatus] || statusConfigs.packed;
 
@@ -130,9 +140,55 @@ export default function ItemRow({ item, onUpdate, onDelete }: ItemRowProps) {
             <span className={`text-sm font-semibold tracking-tight text-gray-800 ${item.status === 'removed' ? 'line-through text-gray-400' : ''}`}>
               {item.name}
             </span>
-            <span className="text-xs font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md">
-              {item.quantity || "1x"}
-            </span>
+            {editingQuantity ? (
+              <div className="flex items-center gap-1">
+                <input
+                  id={`input-qty-${item.id}`}
+                  type="text"
+                  value={quantityText}
+                  onChange={(e) => setQuantityText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveQuantity();
+                    if (e.key === 'Escape') {
+                      setEditingQuantity(false);
+                      setQuantityText(item.quantity || "1x");
+                    }
+                  }}
+                  placeholder="e.g. 5x, 1 pair"
+                  className="text-xs font-medium bg-white border border-indigo-300 rounded px-2 py-0.5 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+                  autoFocus
+                />
+                <button
+                  id={`btn-save-qty-${item.id}`}
+                  onClick={handleSaveQuantity}
+                  className="text-indigo-600 hover:text-indigo-700 font-bold text-xs"
+                >
+                  ✓
+                </button>
+                <button
+                  id={`btn-cancel-qty-${item.id}`}
+                  onClick={() => {
+                    setEditingQuantity(false);
+                    setQuantityText(item.quantity || "1x");
+                  }}
+                  className="text-gray-400 hover:text-gray-600 font-bold text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <button
+                id={`btn-edit-qty-${item.id}`}
+                onClick={() => {
+                  setQuantityText(item.quantity || "1x");
+                  setEditingQuantity(true);
+                }}
+                className="text-xs font-medium text-gray-400 bg-gray-100 hover:bg-gray-200 px-1.5 py-0.5 rounded-md cursor-pointer transition"
+                title="Click to edit quantity"
+              >
+                {item.quantity || "1x"}
+              </button>
+            )}
 
             {/* Alert on Expiration Badge */}
             {item.expirationDate && (
@@ -140,11 +196,10 @@ export default function ItemRow({ item, onUpdate, onDelete }: ItemRowProps) {
                 id={`btn-toggle-alert-${item.id}`}
                 onClick={() => onUpdate({ ...item, alertOnExpiration: !item.alertOnExpiration })}
                 title={item.alertOnExpiration ? "Email alerts enabled for expiration" : "Email alerts disabled for expiration"}
-                className={`p-1 rounded-md transition ${
-                  item.alertOnExpiration 
-                    ? "text-red-500 hover:text-red-600 bg-red-50" 
-                    : "text-gray-300 hover:text-gray-400 hover:bg-gray-100"
-                }`}
+                className={`p-1 rounded-md transition ${item.alertOnExpiration
+                  ? "text-red-500 hover:text-red-600 bg-red-50"
+                  : "text-gray-300 hover:text-gray-400 hover:bg-gray-100"
+                  }`}
               >
                 {item.alertOnExpiration ? <Bell className="h-3 w-3" /> : <BellOff className="h-3 w-3" />}
               </button>
@@ -159,7 +214,7 @@ export default function ItemRow({ item, onUpdate, onDelete }: ItemRowProps) {
 
         {/* Middle and Right: Status, Expiration, Note Trigger, and Delete */}
         <div className="flex flex-wrap items-center gap-2 md:gap-4">
-          
+
           {/* Item Expiration Inline Date */}
           <div className="flex items-center gap-1 text-xs text-gray-500 bg-white border border-gray-200 rounded-lg px-2 py-1 shadow-2xs">
             <CalendarDays className="h-3.5 w-3.5 text-gray-400" />
@@ -209,11 +264,10 @@ export default function ItemRow({ item, onUpdate, onDelete }: ItemRowProps) {
               setShowNotes(!showNotes);
               if (!showNotes) setNoteText(item.note || "");
             }}
-            className={`p-1.5 rounded-lg border transition ${
-              showNotes || item.note
-                ? "bg-indigo-50 border-indigo-200 text-indigo-600" 
-                : "bg-white border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50"
-            }`}
+            className={`p-1.5 rounded-lg border transition ${showNotes || item.note
+              ? "bg-indigo-50 border-indigo-200 text-indigo-600"
+              : "bg-white border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+              }`}
             title="Add/Edit Note"
           >
             <FileText className="h-4 w-4" />
@@ -269,7 +323,7 @@ export default function ItemRow({ item, onUpdate, onDelete }: ItemRowProps) {
               (Will remind in 1 week by default)
             </span>
           </div>
-          
+
           <div className="flex items-center gap-2 text-xs">
             <span className="text-gray-600 font-medium select-none">Reminds on:</span>
             <input
